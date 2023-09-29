@@ -103,13 +103,13 @@ Chainable functor class for C++20
     int main(void) {
         cf::ChainableFunctor<int> adder{[](int x, int y) { return x + y; }};
 
-        int singelArgResult = adder(5);
+        int singelArgResult = adder(1);
         std::cout << "Single argument result: " << singelArgResult << std::endl;
 
-        int chainResult = adder(5)(6)(7)(8)(9);
+        int chainResult = adder(1)(2)(3)(4);
         std::cout << "Chain result: " << chainResult << std::endl;
 
-        int chainResultFromFunc = adder.result(adder(5)(6)(7)(8)(9)(10));
+        int chainResultFromFunc = adder.result(adder(1)(2)(3)(4)(5));
         std::cout << "Chain result (from function): " << chainResultFromFunc << std::endl;
 
 
@@ -124,11 +124,20 @@ Chainable functor class for C++20
         auto bPtr = std::make_unique<int>(2);
         auto cPtr = std::make_unique<int>(3);
 
-        std::cout << "Ptr chain result: "
+        std::cout << std::endl << "Ptr chain result: "
                 << *ptrAdder.result(ptrAdder(aPtr)(bPtr)(cPtr)) << std::endl;
 
         return 0;
     }
+    ```
+
+    ```
+    ./example
+    Single argument result: 1
+    Chain result: 10
+    Chain result (from function): 15
+
+    Ptr chain result: 6
     ```
 
 <br />
