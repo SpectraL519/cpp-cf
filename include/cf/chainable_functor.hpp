@@ -68,7 +68,7 @@ using chainable_type_traits_t = typename chainable_type_traits<C, T>::type;
 
 
 template <
-    std::default_initializable T,
+    typename T,
     detail::chainable_type RT = value,
     detail::chainable_type AT = value
 >
@@ -83,7 +83,7 @@ public:
     ChainableFunctor(const ChainableFunctor&) = delete;
     ChainableFunctor& operator=(const ChainableFunctor&) = delete;
 
-    ChainableFunctor(FunctionType fun)
+    ChainableFunctor(FunctionType fun) requires (std::default_initializable<T>)
     : _function(fun) {}
 
     ChainableFunctor(FunctionType fun, Type&& init_result)
