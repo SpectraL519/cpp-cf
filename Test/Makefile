@@ -1,7 +1,7 @@
 # TODO: os detection
 
 # Structure
-INCLUDE_DIR := Include
+INCLUDE_DIR := ../Include
 TEST_DIR := .
 TEST_CASES_DIR := test_cases
 TEST_BUILD_DIR := build
