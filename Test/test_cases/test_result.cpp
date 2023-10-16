@@ -12,10 +12,10 @@ TEST_CASE("ChainableFunctor should return correct value") {
     const auto add = [](const int a, const int b) { return a + b; };
     adder_type adder{add};
 
-    REQUIRE(std::is_same_v<typename adder_type::Type, int>);
-    REQUIRE(std::is_same_v<typename adder_type::ReturnType, int>);
-    REQUIRE(std::is_same_v<typename adder_type::ArgumentType, const int>);
-    REQUIRE(std::is_same_v<typename adder_type::FunctionType,
+    REQUIRE(std::is_same_v<typename adder_type::type, int>);
+    REQUIRE(std::is_same_v<typename adder_type::return_type, int>);
+    REQUIRE(std::is_same_v<typename adder_type::argument_type, const int>);
+    REQUIRE(std::is_same_v<typename adder_type::function_type,
                            std::function<int(const int, const int)>>);
 
     SUBCASE("return through implicit conversion") {

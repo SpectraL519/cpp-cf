@@ -74,42 +74,42 @@ template <
 >
 class ChainableFunctor {
 public:
-    using Type = std::remove_reference_t<T>;
-    using ReturnType = detail::chainable_type_traits_t<RT, T>;
-    using ArgumentType = detail::chainable_type_traits_t<AT, T>;
-    using FunctionType = std::function<ReturnType(ArgumentType, ArgumentType)>;
+    using type = std::remove_reference_t<T>;
+    using return_type = detail::chainable_type_traits_t<RT, T>;
+    using argument_type = detail::chainable_type_traits_t<AT, T>;
+    using function_type = std::function<return_type(argument_type, argument_type)>;
 
     ChainableFunctor() = delete;
     ChainableFunctor(const ChainableFunctor&) = delete;
     ChainableFunctor& operator=(const ChainableFunctor&) = delete;
 
-    ChainableFunctor(FunctionType fun) requires (std::default_initializable<T>)
+    ChainableFunctor(function_type fun) requires (std::default_initializable<T>)
     : _function(fun) {}
 
-    ChainableFunctor(FunctionType fun, Type&& init_result)
-    : _function(fun), _result(std::forward<Type>(init_result)) {}
+    ChainableFunctor(function_type fun, type&& init_result)
+    : _function(fun), _result(std::forward<type>(init_result)) {}
 
     ChainableFunctor(ChainableFunctor&& other)
     : _function(std::move(other._function)), _result(std::move(other._result)) {}
 
-    ChainableFunctor<T, RT, AT> operator() (ArgumentType arg) {
+    ChainableFunctor<T, RT, AT> operator() (argument_type arg) {
         return ChainableFunctor<T, RT, AT>(
             this->_function,
             this->_function(this->_result, arg)
         );
     }
 
-    ReturnType result(ChainableFunctor<T, RT, AT> functor) {
-        return std::forward<ReturnType>(functor._result);
+    return_type result(ChainableFunctor<T, RT, AT> functor) {
+        return std::forward<return_type>(functor._result);
     }
 
-    operator Type() const {
+    operator type() const {
         return this->_result;
     }
 
 private:
-    FunctionType _function;
-    Type _result = Type{};
+    function_type _function;
+    type _result = type{};
 };
 
 } // namespace cf
