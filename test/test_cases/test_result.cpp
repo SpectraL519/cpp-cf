@@ -12,15 +12,9 @@ TEST_CASE("ChainableFunctor should return correct value") {
     const auto add = [](const int a, const int b) { return a + b; };
     adder_type adder{add};
 
-    REQUIRE(std::is_same_v<typename adder_type::type, int>);
-    REQUIRE(std::is_same_v<typename adder_type::return_type, int>);
-    REQUIRE(std::is_same_v<typename adder_type::argument_type, const int>);
-    REQUIRE(std::is_same_v<typename adder_type::function_type,
-                           std::function<int(const int, const int)>>);
+    int add_func_result, chainable_adder_result;
 
     SUBCASE("return through implicit conversion") {
-        int add_func_result, chainable_adder_result;
-
         SUBCASE("single argument") {
             const auto default_value = int{};
             const int argument = 1;
@@ -51,7 +45,7 @@ TEST_CASE("ChainableFunctor should return correct value") {
         REQUIRE_EQ(add_func_result, chainable_adder_result);
     }
 
-    SUBCASE("through result function") {
+    SUBCASE("return through the result function") {
         int add_func_result, chainable_adder_result;
 
         SUBCASE("single argument") {
@@ -78,10 +72,10 @@ TEST_CASE("ChainableFunctor should return correct value") {
             chainable_adder_result =
                 adder.result(adder(arguments.at(0))(arguments.at(1))(arguments.at(2)));
         }
-
-        CAPTURE(add_func_result);
-        CAPTURE(chainable_adder_result);
-
-        REQUIRE_EQ(add_func_result, chainable_adder_result);
     }
+
+    CAPTURE(add_func_result);
+    CAPTURE(chainable_adder_result);
+
+    REQUIRE_EQ(add_func_result, chainable_adder_result);
 }

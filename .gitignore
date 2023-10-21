@@ -2,5 +2,5 @@
 .vscode/
 
 # build files
-test/build/
 *.exe
+test/build/*
