@@ -16,19 +16,14 @@ struct rvalue_reference {};
 
 namespace detail {
 
-template <typename T> struct is_chainable                   : std::false_type {};
-template <>           struct is_chainable<value>            : std::true_type  {};
-template <>           struct is_chainable<const_value>      : std::true_type  {};
-template <>           struct is_chainable<reference>        : std::true_type  {};
-template <>           struct is_chainable<const_reference>  : std::true_type  {};
-template <>           struct is_chainable<rvalue_reference> : std::true_type  {};
+template <typename T, typename... ValidTypes>
+inline constexpr bool is_valid_type_v = std::disjunction_v<std::is_same<T, ValidTypes...>>;
 
 template <typename T>
-inline constexpr bool is_chainable_v = is_chainable<T>::value;
+inline constexpr bool is_chainable_v = is_valid_type_v<T, value, const_value, reference, const_reference, rvalue_reference>;
 
 template <typename T>
 concept chainable_type = std::default_initializable<T> && is_chainable_v<T>;
-
 
 template <chainable_type C, typename T>
 struct chainable_type_traits {
