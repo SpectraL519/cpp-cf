@@ -32,26 +32,31 @@ struct chainable_type_traits {
 
 template <typename T>
 struct chainable_type_traits<value, T> {
+    // TODO: std::remove_cvref_t
     using type = std::remove_reference_t<T>;
 };
 
 template <typename T>
 struct chainable_type_traits<const_value, T> {
+    // TODO: std::remove_cvref_t
     using type = const std::remove_reference_t<T>;
 };
 
 template <typename T>
 struct chainable_type_traits<reference, T> {
+    // TODO: std::remove_cvref_t
     using type = std::remove_reference_t<T>&;
 };
 
 template <typename T>
 struct chainable_type_traits<const_reference, T> {
+    // TODO: std::remove_cvref_t
     using type = const std::remove_reference_t<T>&;
 };
 
 template <typename T>
 struct chainable_type_traits<rvalue_reference, T> {
+    // TODO: std::remove_cvref_t
     using type = std::remove_reference_t<T>&&;
 };
 
@@ -103,6 +108,7 @@ public:
     }
 
 private:
+    // TODO: std::shared_ptr<function_type>
     function_type _function;
     type _result = type{};
 };
