@@ -34,12 +34,12 @@ Chainable functor class for C++20
 
     The `ChainableFunctor` class requires specyfying the type you want to wark with as well as the function return (`RT`) and argument (`AT`) types:
 
-    **NOTE:** function return and argument types are `cf::value` by default, bu you can chose from:
-    * `cf::value`
-    * `cf::const_value`
-    * `cf::reference`
-    * `cf::const_reference`
-    * `cf::rvalue_reference`
+    **NOTE:** function return and argument types are `cf::val` by default, bu you can chose from:
+    * `cf::val`
+    * `cf::cval`
+    * `cf::ref`
+    * `cf::cref`
+    * `cf::rvref`
 
     You also need to pass in a function of a specified signature to the class contructor.
 
@@ -52,7 +52,7 @@ Chainable functor class for C++20
     ```
 
     ```
-    cf::ChainableFunctor<std::unique_ptr<int>, cf::value, cf::const_reference> ptrAdder{
+    cf::ChainableFunctor<std::unique_ptr<int>, cf::val, cf::cref> ptrAdder{
         [](const std::unique_ptr<int>& a, const std::unique_ptr<int>& b) {
             return std::make_unique<int>(*a + *b);
         },
@@ -76,10 +76,10 @@ Chainable functor class for C++20
     std::cout << "Chain result: " << chainResult << std::endl;
     ```
 
-    * Use the `ChainableFunctor<T, RT, AT>::result()` method (forwards the stored result)
+    * Use the `ChainableFunctor<T, RT, AT>::get()` method (forwards the stored result)
 
     ```
-    int chainResultFromFunc = adder.result(adder(1)(2)(3)(4));
+    int chainResultFromFunc = adder.get(adder(1)(2)(3)(4));
     std::cout << "Chain result (from function): " << chainResultFromFunc << std::endl;
     ```
 
@@ -93,41 +93,37 @@ Chainable functor class for C++20
     ```
     // example.cpp
 
+    #include <cf/chainable_functor.hpp>
+
     #include <iostream>
     #include <memory>
 
-    #include <cf/chainable_functor.hpp>
+    int main() {
+        cf::chainable_functor<int> adder{
+            [](int x, int y) { return x + y; }
+        };
 
+        int single = adder(1);
+        std::cout << "Single: " << single << "\n";
 
+        int chain = adder(1)(2)(3)(4);
+        std::cout << "Chain: " << chain << "\n";
 
-    int main(void) {
-        cf::ChainableFunctor<int> adder{[](int x, int y) { return x + y; }};
+        int total = adder.get(adder(1)(2)(3)(4)(5));
+        std::cout << "Total (via .get()): " << total << "\n";
 
-        int singelArgResult = adder(1);
-        std::cout << "Single argument result: " << singelArgResult << std::endl;
-
-        int chainResult = adder(1)(2)(3)(4);
-        std::cout << "Chain result: " << chainResult << std::endl;
-
-        int chainResultFromFunc = adder.result(adder(1)(2)(3)(4)(5));
-        std::cout << "Chain result (from function): " << chainResultFromFunc << std::endl;
-
-
-        cf::ChainableFunctor<std::unique_ptr<int>, cf::value, cf::const_reference> ptrAdder{
+        cf::chainable_functor<std::unique_ptr<int>, cf::val, cf::cref> ptr_adder{
             [](const std::unique_ptr<int>& a, const std::unique_ptr<int>& b) {
                 return std::make_unique<int>(*a + *b);
             },
-            std::make_unique<int>()
+            std::make_unique<int>(0)
         };
 
-        auto aPtr = std::make_unique<int>(1);
-        auto bPtr = std::make_unique<int>(2);
-        auto cPtr = std::make_unique<int>(3);
+        auto a = std::make_unique<int>(1);
+        auto b = std::make_unique<int>(2);
+        auto c = std::make_unique<int>(3);
 
-        std::cout << std::endl << "Ptr chain result: "
-                << *ptrAdder.result(ptrAdder(aPtr)(bPtr)(cPtr)) << std::endl;
-
-        return 0;
+        std::cout << "Ptr chain: " << *ptr_adder.get(ptr_adder(a)(b)(c)) << "\n";
     }
     ```
 
@@ -148,5 +144,7 @@ Chainable functor class for C++20
 
 * Figure out how to chain function with different argument types
   > Maybe use std::function<ReturnType(ReturnType, ArgumentType)>
+
+* Unary function chaining (or use variadic number of function arguments)
 
 * Add `()` operator overload for `ArgumentType... args`?

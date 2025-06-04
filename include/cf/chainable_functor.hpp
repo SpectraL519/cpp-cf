@@ -4,112 +4,110 @@
 #include <functional>
 #include <type_traits>
 
-
-
 namespace cf {
 
-struct value            {};
-struct const_value      {};
-struct reference        {};
-struct const_reference  {};
-struct rvalue_reference {};
+struct val   {};
+struct cval  {};
+struct ref   {};
+struct cref  {};
+struct rvref {};
 
 namespace detail {
 
+// TODO: use c_one_of
+
 template <typename T> struct is_chainable                   : std::false_type {};
-template <>           struct is_chainable<value>            : std::true_type  {};
-template <>           struct is_chainable<const_value>      : std::true_type  {};
-template <>           struct is_chainable<reference>        : std::true_type  {};
-template <>           struct is_chainable<const_reference>  : std::true_type  {};
-template <>           struct is_chainable<rvalue_reference> : std::true_type  {};
+template <>           struct is_chainable<val>            : std::true_type  {};
+template <>           struct is_chainable<cval>      : std::true_type  {};
+template <>           struct is_chainable<ref>        : std::true_type  {};
+template <>           struct is_chainable<cref>  : std::true_type  {};
+template <>           struct is_chainable<rvref> : std::true_type  {};
 
 template <typename T>
 inline constexpr bool is_chainable_v = is_chainable<T>::value;
 
 template <typename T>
-concept chainable_type = std::default_initializable<T> && is_chainable_v<T>;
+concept c_chainable_type_spec = std::default_initializable<T> && is_chainable_v<T>;
 
 
-template <chainable_type C, typename T>
+template <c_chainable_type_spec C, typename T>
 struct chainable_type_traits {
     using type = void;
 };
 
 template <typename T>
-struct chainable_type_traits<value, T> {
-    using type = std::remove_reference_t<T>;
+struct chainable_type_traits<val, T> {
+    using type = std::remove_cvref_t<T>;
 };
 
 template <typename T>
-struct chainable_type_traits<const_value, T> {
-    using type = const std::remove_reference_t<T>;
+struct chainable_type_traits<cval, T> {
+    using type = const std::remove_cvref_t<T>;
 };
 
 template <typename T>
-struct chainable_type_traits<reference, T> {
-    using type = std::remove_reference_t<T>&;
+struct chainable_type_traits<ref, T> {
+    using type = std::remove_cvref_t<T>&;
 };
 
 template <typename T>
-struct chainable_type_traits<const_reference, T> {
-    using type = const std::remove_reference_t<T>&;
+struct chainable_type_traits<cref, T> {
+    using type = const std::remove_cvref_t<T>&;
 };
 
 template <typename T>
-struct chainable_type_traits<rvalue_reference, T> {
-    using type = std::remove_reference_t<T>&&;
+struct chainable_type_traits<rvref, T> {
+    using type = std::remove_cvref_t<T>&&;
 };
 
-template <chainable_type C, typename T>
-using chainable_type_traits_t = typename chainable_type_traits<C, T>::type;
+template <c_chainable_type_spec C, typename T>
+using chainable_type = typename chainable_type_traits<C, T>::type;
 
 } // namespace detail
 
-
-
 template <
     typename T,
-    detail::chainable_type RT = value,
-    detail::chainable_type AT = value
+    detail::c_chainable_type_spec RT = val,
+    detail::c_chainable_type_spec AT = val
 >
-class ChainableFunctor {
+class chainable_functor {
 public:
-    using Type = std::remove_reference_t<T>;
-    using ReturnType = detail::chainable_type_traits_t<RT, T>;
-    using ArgumentType = detail::chainable_type_traits_t<AT, T>;
-    using FunctionType = std::function<ReturnType(ArgumentType, ArgumentType)>;
+    using type = std::remove_reference_t<T>;
+    using return_type = detail::chainable_type<RT, T>;
+    using argument_type = detail::chainable_type<AT, T>;
+    using function_type = std::function<return_type(argument_type, argument_type)>;
 
-    ChainableFunctor() = delete;
-    ChainableFunctor(const ChainableFunctor&) = delete;
-    ChainableFunctor& operator=(const ChainableFunctor&) = delete;
+    chainable_functor() = delete;
+    chainable_functor(const chainable_functor&) = delete;
+    chainable_functor& operator=(const chainable_functor&) = delete;
 
-    ChainableFunctor(FunctionType fun) requires (std::default_initializable<T>)
+    chainable_functor(function_type fun) requires (std::default_initializable<T>)
     : _function(fun) {}
 
-    ChainableFunctor(FunctionType fun, Type&& init_result)
-    : _function(fun), _result(std::forward<Type>(init_result)) {}
+    chainable_functor(function_type fun, type&& init_result)
+    : _function(fun), _result(std::forward<type>(init_result)) {}
 
-    ChainableFunctor(ChainableFunctor&& other)
+    chainable_functor(chainable_functor&& other)
     : _function(std::move(other._function)), _result(std::move(other._result)) {}
 
-    ChainableFunctor<T, RT, AT> operator() (ArgumentType arg) {
-        return ChainableFunctor<T, RT, AT>(
+    chainable_functor<T, RT, AT> operator() (argument_type arg) {
+        return chainable_functor<T, RT, AT>(
             this->_function,
             this->_function(this->_result, arg)
         );
     }
 
-    ReturnType result(ChainableFunctor<T, RT, AT> functor) {
-        return std::forward<ReturnType>(functor._result);
+    return_type get(chainable_functor<T, RT, AT> functor) {
+        return std::forward<return_type>(functor._result);
     }
 
-    operator Type() const {
+    operator type() const {
         return this->_result;
     }
 
 private:
-    FunctionType _function;
-    Type _result = Type{};
+    function_type _function;
+    type _result = type{};
 };
 
 } // namespace cf
