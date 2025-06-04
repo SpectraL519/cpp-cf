@@ -1,9 +1,9 @@
 # cpp-cf
 Chainable functor class for C++20
 
-> The `ChainableFunctor` class allows chaining of **non-void two-argument functions** the  return and argument types of which are (const) value, (const) reference or rvalue reference types.
+> The `chainable_functor` class allows chaining of **non-void two-argument functions** the  return and argument types of which are (const) value, (const) reference or rvalue reference types.
 >
-> **NOTE:** Return and argument types have to be the same regardless of the const specifier and the function signature is represented as `std::function<ReturnType(ArgumentType, AgrymentType)>`
+> **NOTE:** Return and argument types have to be the same regardless of the const specifier and the function signature is represented as `std::function<return_type(argument_type, argument_type)>`
 
 
 
@@ -19,9 +19,9 @@ Chainable functor class for C++20
 <br />
 <br />
 
-2. **Using the `ChainableFunctor` class in a project**
+2. **Using the `chainable_functor` class in a project**
 
-    To be able to use the `ChainableFunctor` class you simply need to include a single header file:
+    To be able to use the `chainable_functor` class you simply need to include a single header file:
 
     ```
     #include <cf/chainable_functor.hpp>
@@ -30,9 +30,9 @@ Chainable functor class for C++20
 <br />
 <br />
 
-3. **Initializing a `ChainableFunctor` object**
+3. **Initializing a `chainable_functor` object**
 
-    The `ChainableFunctor` class requires specyfying the type you want to wark with as well as the function return (`RT`) and argument (`AT`) types:
+    The `chainable_functor` class requires specyfying the type you want to wark with as well as the function return (`RT`) and argument (`AT`) types:
 
     **NOTE:** function return and argument types are `cf::val` by default, bu you can chose from:
     * `cf::val`
@@ -48,11 +48,11 @@ Chainable functor class for C++20
     **Examples:**
 
     ```
-    cf::ChainableFunctor<int> adder{[](int x, int y) { return x + y; }};
+    cf::chainable_functor<int> adder{[](int x, int y) { return x + y; }};
     ```
 
     ```
-    cf::ChainableFunctor<std::unique_ptr<int>, cf::val, cf::cref> ptrAdder{
+    cf::chainable_functor<std::unique_ptr<int>, cf::val, cf::cref> ptr_adder{
         [](const std::unique_ptr<int>& a, const std::unique_ptr<int>& b) {
             return std::make_unique<int>(*a + *b);
         },
@@ -65,18 +65,18 @@ Chainable functor class for C++20
 
 4. **Chaining function calls**
 
-    To properly chain the function calls you simply need to call the `ChainableFunctor` object as many times as you want (or as many times as your hardware allows you to :wink:)
+    To properly chain the function calls you simply need to call the `chainable_functor` object as many times as you want (or as many times as your hardware allows you to :wink:)
 
     To get the result of the chained function call you can:
 
     * Implicitly convert the returned functor to your desired type (returns the stored result by value)
 
     ```
-    int chainResult = adder(1)(2)(3);
-    std::cout << "Chain result: " << chainResult << std::endl;
+    int chain_result = adder(1)(2)(3);
+    std::cout << "Chain result: " << chain_result << std::endl;
     ```
 
-    * Use the `ChainableFunctor<T, RT, AT>::get()` method (forwards the stored result)
+    * Use the `chainable_functor<T, RT, AT>::get()` method (forwards the stored result)
 
     ```
     int chainResultFromFunc = adder.get(adder(1)(2)(3)(4));
@@ -88,7 +88,7 @@ Chainable functor class for C++20
 
 5. **An example program**
 
-    Here is a very simple example program which demonstrates the usage of the `ChainableFunctor` class:
+    Here is a very simple example program which demonstrates the usage of the `chainable_functor` class:
 
     ```
     // example.cpp
@@ -108,7 +108,6 @@ Chainable functor class for C++20
 
         int chain = adder(1)(2)(3)(4);
         std::cout << "Chain: " << chain << "\n";
-
         int total = adder.get(adder(1)(2)(3)(4)(5));
         std::cout << "Total (via .get()): " << total << "\n";
 
@@ -143,8 +142,5 @@ Chainable functor class for C++20
 ## TODO:
 
 * Figure out how to chain function with different argument types
-  > Maybe use std::function<ReturnType(ReturnType, ArgumentType)>
-
 * Unary function chaining (or use variadic number of function arguments)
-
-* Add `()` operator overload for `ArgumentType... args`?
+* Add `()` operator overload for `argument_type... args`?
